@@ -1,0 +1,37 @@
+{
+  "name": "playwright-react-test",
+  "version": "0.1.0",
+  "description": "Test your React components (currently only works with TypeScript and ESBuild compiler).",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevmuret/playwright-react-test.git"
+  },
+  "keywords": [
+    "react",
+    "test",
+    "playwright"
+  ],
+  "author": "Kevin Muret <kevmuret@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kevmuret/playwright-react-test/issues"
+  },
+  "homepage": "https://github.com/kevmuret/playwright-react-test#readme",
+  "dependencies": {
+    "@playwright/test": "^1.58.2",
+    "esbuild": "^0.27.3",
+    "playwright": "^1.58.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.1",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}
