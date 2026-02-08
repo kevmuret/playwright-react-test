@@ -1,3 +1,4 @@
+// Test file for the App component using Playwright's testing library
 import { test, expect } from "../src/test";
 
 test("App example", async ({ page, mountStory, updateStory }) => {

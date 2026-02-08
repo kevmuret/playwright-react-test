@@ -18,7 +18,7 @@
     "playwright"
   ],
   "author": "Kevin Muret <kevmuret@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/kevmuret/playwright-react-test/issues"
   },

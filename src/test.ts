@@ -5,12 +5,31 @@ import {
   ReporterDescription,
 } from "@playwright/test";
 import { readFileSync } from "fs";
+// This file extends Playwright's test object to provide utilities for mounting and updating React components during tests.
 import path from "path";
 
+// Extend Playwright's test with custom utilities for React component testing
+/**
+ * Custom utilities added to Playwright's test object.
+ * @property {Function} mountStory - Function that mounts a React story with initial props.
+ * @property {Function} updateStory - Function that updates the mounted component’s props.
+ */
 export const test = base.extend<{
+  /**
+   * Mounts a React component with the given props.
+   */
   mountStory: (props: any) => void;
+  /**
+   * Updates an already mounted component with new props.
+   */
   updateStory: (props: any) => void;
 }>({
+  /**
+   * Mounts a React component into the Playwright page.
+   * @param page - The Playwright Page instance.
+   * @param use - Hook to provide the mounting function to tests.
+   * @param testInfo - Information about the current test, used to locate the story file.
+   */
   mountStory: async ({ page }, use, testInfo) => {
     await use((props: any) => {
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
@@ -37,6 +56,11 @@ export const test = base.extend<{
 	</html>`);
     });
   },
+  /**
+   * Updates props of an already mounted React component.
+   * @param page - The Playwright Page instance.
+   * @param use - Hook to provide the update function to tests.
+   */
   updateStory: async ({ page }, use) => {
     await use(async (props: any) => {
       await page.evaluate((props) => {
@@ -46,6 +70,12 @@ export const test = base.extend<{
   },
 });
 
+/**
+ * Extends Playwright's configuration with the custom reporter and utilities.
+ * This helper ensures that the `playwright-react-test/reporter` is added to
+ * the test runner while preserving any user‑supplied reporter settings.
+ * It should be used in place of `defineConfig` from @playwright/test.
+ */
 export const defineConfig = (
   config: PlaywrightTestConfig,
 ): PlaywrightTestConfig => {

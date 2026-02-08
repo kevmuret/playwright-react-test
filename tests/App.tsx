@@ -1,3 +1,4 @@
+// App component renders a greeting message
 import React, { ReactNode } from "react";
 
 const App: React.FC<{ text: string }> = ({ text }): ReactNode => {

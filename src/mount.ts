@@ -2,9 +2,13 @@ import React, { useSyncExternalStore } from "react";
 import { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 
+// Holds the current props passed from tests
 let props: any = undefined;
+// Callback invoked when props are updated
 let listener: Function;
+// Reference to the story component passed in by tests
 let test_story: (props: any) => ReactNode;
+// Global handler exposed for tests to update props
 (globalThis as any).ReactTestPropsHandler = {
   update(new_props: any) {
     props = new_props;
@@ -12,6 +16,7 @@ let test_story: (props: any) => ReactNode;
     listener();
   },
 };
+// Component that renders the story and subscribes to prop changes
 const ReactTestRootComponent = (init_props: any): ReactNode => {
   if (!props) {
     props = init_props;
@@ -32,6 +37,7 @@ const ReactTestRootComponent = (init_props: any): ReactNode => {
   story: (props: any) => ReactNode,
 ) {
   test_story = story;
+  // Mount the React component into the container
   createRoot(container).render(
     React.createElement(ReactTestRootComponent, props),
   );
