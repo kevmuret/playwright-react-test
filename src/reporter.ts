@@ -11,62 +11,61 @@ import { build, BuildOptions } from "esbuild";
 import path from "path";
 import { tmpdir } from "os";
 
-export const testStories = new Set<string>();
-
 class ReactTestReporter implements Reporter {
   tsConfig: any;
-  tmpDir: string | undefined = undefined;
+  tmpDir?: string;
+  testStories = new Set<string>();
+
   constructor(options: { tsConfig?: any } = {}) {
-    this.tsConfig = options.tsConfig || {};
-  }
-  async onBegin(config: FullConfig, suite: Suite): Promise<void> {
-    process.env.PWRIGHT_REACT_TEST_TMPDIR = mkdtempSync(
+    this.tsConfig = options.tsConfig ?? {};
+    this.tmpDir = process.env.PWRIGHT_REACT_TEST_TMPDIR = mkdtempSync(
       path.join(tmpdir(), "pwright-react-"),
     );
+  }
 
-    // Recursively collect test file paths
-    function collectFiles(suite: Suite) {
-      for (const child of suite.suites) {
-        collectFiles(child);
-      }
-      for (const test of suite.tests) {
-        const story_path = /(\.(test|spec))?\.ts$/.test(test.location.file)
-          ? test.location.file.replace(/(\.(test|spec)?)\.ts$/, ".story.tsx")
-          : null;
-        if (story_path && existsSync(story_path)) {
-          testStories.add(story_path);
-        }
+  private collectFiles(suite: Suite): void {
+    for (const child of suite.suites) this.collectFiles(child);
+    for (const test of suite.tests) {
+      const story_path = /(\.(test|spec))?\.ts$/.test(test.location.file)
+        ? test.location.file.replace(/(\.(test|spec))?\.ts$/, ".story.tsx")
+        : null;
+      if (story_path && existsSync(story_path)) {
+        this.testStories.add(story_path);
       }
     }
+  }
 
-    collectFiles(suite);
+  async onBegin(_config: FullConfig, suite: Suite): Promise<void> {
+    this.collectFiles(suite);
 
     this.tmpDir = process.env.PWRIGHT_REACT_TEST_TMPDIR;
     const build_options: BuildOptions = {
-      entryPoints: ["react", "react-dom/client"].concat(
-        Array.from(testStories),
-      ),
+      entryPoints: [
+        "react",
+        "react-dom/client",
+        ...Array.from(this.testStories),
+      ],
       bundle: true,
       outdir: this.tmpDir,
       tsconfigRaw: {
-        compilerOptions: Object.assign(this.tsConfig, {
-          jsx: "react-jsx",
-        }),
+        compilerOptions: Object.assign(this.tsConfig, { jsx: "react-jsx" }),
       },
     };
+
     if (process.env.NODE_ENV === "development") {
       build_options.stdin = {
-        contents: readFileSync("./src/mount.ts"),
+        contents: readFileSync("./src/mount.ts", "utf8"),
         resolveDir: "./src",
         sourcefile: "src/react-test/mount.ts",
         loader: "ts",
       };
     } else {
-      //@ts-ignore
+      // @ts-ignore passing a string as argument is causing an error while it's not.
       build_options.entryPoints!.push("playwright-react-test/mount");
     }
-    console.log(build_options);
+
     await build(build_options);
+
     if (process.env.NODE_ENV === "development") {
       const prt_dir = path.join(this.tmpDir, "playwright-react-test");
       mkdir(prt_dir, { recursive: true }, (err) => {
@@ -81,14 +80,13 @@ class ReactTestReporter implements Reporter {
       );
     }
   }
+
   async onExit(): Promise<void> {
     if (this.tmpDir) {
-      rmSync(this.tmpDir, {
-        recursive: true,
-        force: true,
-      });
+      rmSync(this.tmpDir, { recursive: true, force: true });
     }
   }
+
   printsToStdio(): boolean {
     return false;
   }
