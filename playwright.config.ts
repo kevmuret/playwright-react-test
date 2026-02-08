@@ -9,5 +9,4 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     headless: true,
   },
-  globalSetup: "./src/setup.ts",
 });
