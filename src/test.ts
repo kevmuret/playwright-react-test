@@ -1,4 +1,9 @@
-import { test as base } from "@playwright/test";
+import {
+  test as base,
+  defineConfig as base_defineConfig,
+  PlaywrightTestConfig,
+  ReporterDescription,
+} from "@playwright/test";
 import { readFileSync } from "fs";
 import path from "path";
 
@@ -9,7 +14,7 @@ export const test = base.extend<{
   mountComponent: async ({ page }, use, testInfo) => {
     await use((props: any) => {
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
-        throw "Setup has not been called, include globalSetup: require(...) in yout config file";
+        throw "Setup has not been called, include globalSetup: require(...) in your config file";
       }
       const tmp_dir = process.env.PWRIGHT_REACT_TEST_TMPDIR;
       const story_path = path
@@ -32,13 +37,35 @@ export const test = base.extend<{
 	</html>`);
     });
   },
-  updateComponent: async ({ page }, use, testInfo) => {
+  updateComponent: async ({ page }, use) => {
     await use(async (props: any) => {
       await page.evaluate((props) => {
-        globalThis.ReactTestPropsHandler.update(props);
+        (globalThis as any).ReactTestPropsHandler.update(props);
       }, props);
     });
   },
 });
+
+export const defineConfig = (
+  config: PlaywrightTestConfig,
+): PlaywrightTestConfig => {
+  const reporter: ReporterDescription[] = [
+    ["playwright-react-test/reporter", {}],
+  ];
+  switch (typeof config.reporter) {
+    case "string":
+      reporter.push([config.reporter]);
+      break;
+    case "undefined":
+      break;
+    default:
+      reporter.concat(config.reporter);
+      break;
+  }
+  return base_defineConfig({
+    ...config,
+    reporter: reporter,
+  });
+};
 
 export { expect } from "@playwright/test";

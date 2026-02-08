@@ -1,10 +1,12 @@
 {
   "name": "playwright-react-test",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Test your React components (currently only works with TypeScript and ESBuild compiler).",
-  "main": "index.js",
+  "main": "dist/test.js",
+  "type": "commonjs",
   "scripts": {
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "build": "npx esbuild src/*.ts --platform=node --format=cjs --bundle --external:playwright --external:esbuild --external:react --external:react-dom --outdir=dist/ && tsc --emitDeclarationOnly"
   },
   "repository": {
     "type": "git",
@@ -33,5 +35,17 @@
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "types": [
+    "dist/*.d.ts"
+  ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./mount": "./dist/mount.js",
+    "./reporter": "./dist/reporter.js",
+    "./test": "./dist/test.js"
   }
 }

@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 let props: any = undefined;
 let listener: Function;
 let test_story: (props: any) => ReactNode;
-globalThis.ReactTestPropsHandler = {
+(globalThis as any).ReactTestPropsHandler = {
   update(new_props: any) {
     props = new_props;
     console.log(props);
@@ -26,7 +26,7 @@ const ReactTestRootComponent = (init_props: any): ReactNode => {
   console.log(props, story_props);
   return test_story(story_props);
 };
-globalThis.ReactTestMount = function ReactTestMount(
+(globalThis as any).ReactTestMount = function ReactTestMount(
   container: HTMLElement,
   props: any,
   story: (props: any) => ReactNode,
