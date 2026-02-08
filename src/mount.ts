@@ -12,7 +12,6 @@ let test_story: (props: any) => ReactNode;
 (globalThis as any).ReactTestPropsHandler = {
   update(new_props: any) {
     props = new_props;
-    console.log(props);
     listener();
   },
 };
@@ -28,7 +27,6 @@ const ReactTestRootComponent = (init_props: any): ReactNode => {
     },
     () => props,
   );
-  console.log(props, story_props);
   return test_story(story_props);
 };
 (globalThis as any).ReactTestMount = function ReactTestMount(

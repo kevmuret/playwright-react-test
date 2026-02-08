@@ -40,7 +40,7 @@ export const test = base.extend<{
         .resolve(
           path.join(tmp_dir, path.relative(path.resolve("."), testInfo.file)),
         )
-        .replace(/\.test\.ts$/, ".story.js");
+        .replace(/(\.(test|spec))?\.ts$/, ".story.js");
       page.setContent(`
 	<html>
 		<head>
