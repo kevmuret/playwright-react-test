@@ -7,7 +7,7 @@ Note: Currently, it supports only tests written in TypeScript.
 ## Features
 - **Mount React components** directly inside Playwright tests using the `mountStory` function provided as a fixture.
 - **Update React components** directly inside Playwright tests using the `updateStory` function provided as a fixture.
-- **An automatic bundle** under the hood to bundle react libraries and stories together. This package uses `ESBuild` inside a custom reporter (while allowing you to use other custom reporters).
+- **An automatic bundle** using `ESBuild` inside a custom reporter which collect stories individually while keep the link with the react librairies (it does not prevent youfrom using other custom reporters).
 - Zero‑configuration setup – just install, use the `defineConfig` from 'playwright-react-test/test' module and start writing tests.
 - Built with **TypeScript**, providing type safety out of the box.
 
