@@ -8,10 +8,10 @@ import { readFileSync } from "fs";
 import path from "path";
 
 export const test = base.extend<{
-  mountComponent: (props: any) => void;
-  updateComponent: (props: any) => void;
+  mountStory: (props: any) => void;
+  updateStory: (props: any) => void;
 }>({
-  mountComponent: async ({ page }, use, testInfo) => {
+  mountStory: async ({ page }, use, testInfo) => {
     await use((props: any) => {
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
         throw "Setup has not been called, use defineConfig from 'playwright-react-test/test' in your playwright config file";
@@ -37,7 +37,7 @@ export const test = base.extend<{
 	</html>`);
     });
   },
-  updateComponent: async ({ page }, use) => {
+  updateStory: async ({ page }, use) => {
     await use(async (props: any) => {
       await page.evaluate((props) => {
         (globalThis as any).ReactTestPropsHandler.update(props);
