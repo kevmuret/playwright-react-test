@@ -14,7 +14,7 @@ export const test = base.extend<{
   mountComponent: async ({ page }, use, testInfo) => {
     await use((props: any) => {
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
-        throw "Setup has not been called, include globalSetup: require(...) in your config file";
+        throw "Setup has not been called, use defineConfig from 'playwright-react-test/test' in your playwright config file";
       }
       const tmp_dir = process.env.PWRIGHT_REACT_TEST_TMPDIR;
       const story_path = path
