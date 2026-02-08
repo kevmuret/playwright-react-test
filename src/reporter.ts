@@ -1,10 +1,9 @@
 import { FullConfig, Reporter, Suite } from "@playwright/test/reporter";
 import {
   existsSync,
-  mkdir,
   mkdtempSync,
+  promises as fsPromises,
   readFileSync,
-  rename,
   rmSync,
 } from "fs";
 import { build, BuildOptions } from "esbuild";
@@ -67,17 +66,29 @@ class ReactTestReporter implements Reporter {
     await build(build_options);
 
     if (process.env.NODE_ENV === "development") {
-      const prt_dir = path.join(this.tmpDir, "playwright-react-test");
-      mkdir(prt_dir, { recursive: true }, (err) => {
-        if (err) throw err;
-      });
-      rename(
-        path.join(this.tmpDir, "stdin.js"),
-        path.join(prt_dir, "mount.js"),
-        (err) => {
-          if (err) throw err;
-        },
-      );
+      const prt_dir = path.join(this.tmpDir!, "playwright-react-test");
+      await fsPromises.mkdir(prt_dir, { recursive: true });
+      const src = path.join(this.tmpDir!, "stdin.js");
+      const dst = path.join(prt_dir, "mount.js");
+
+      // Wait until stdin.js is actually written to disk
+      const waitForFile = async (filePath: string, timeout = 5000) => {
+        const start = Date.now();
+        while (true) {
+          try {
+            await fsPromises.access(filePath);
+            break;
+          } catch {
+            if (Date.now() - start > timeout) {
+              throw new Error(`Timed out waiting for ${filePath}`);
+            }
+            await new Promise((r) => setTimeout(r, 50));
+          }
+        }
+      };
+
+      await waitForFile(src);
+      await fsPromises.rename(src, dst);
     }
   }
 
