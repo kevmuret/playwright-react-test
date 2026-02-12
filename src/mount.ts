@@ -4,19 +4,15 @@ import { createRoot } from "react-dom/client";
 
 // Holds the current props passed from tests
 let props: any = undefined;
+
 // Callback invoked when props are updated
 let listener: Function;
+
 // Reference to the story component passed in by tests
 let test_story: (props: any) => ReactNode;
-// Global handler exposed for tests to update props
-(globalThis as any).ReactTestPropsHandler = {
-  update(new_props: any) {
-    props = new_props;
-    listener();
-  },
-};
+
 // Component that renders the story and subscribes to prop changes
-const ReactTestRootComponent = (init_props: any): ReactNode => {
+const Root = (init_props: any): ReactNode => {
   if (!props) {
     props = init_props;
   }
@@ -29,14 +25,25 @@ const ReactTestRootComponent = (init_props: any): ReactNode => {
   );
   return test_story(story_props);
 };
-(globalThis as any).ReactTestMount = function ReactTestMount(
+
+// Function to mount a story through a Root component
+const render = (
   container: HTMLElement,
   props: any,
   story: (props: any) => ReactNode,
-) {
+) => {
   test_story = story;
   // Mount the React component into the container
-  createRoot(container).render(
-    React.createElement(ReactTestRootComponent, props),
-  );
+  createRoot(container).render(React.createElement(Root, props));
+};
+
+// Function to update story properties
+function update<T = any>(p: T): void {
+  props = p;
+  listener();
+}
+
+export default {
+  render: render,
+  update: update,
 };

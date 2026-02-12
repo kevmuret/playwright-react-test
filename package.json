@@ -1,12 +1,16 @@
 {
   "name": "playwright-react-test",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "Test your React components (currently only works with TypeScript and ESBuild compiler).",
   "main": "dist/test.js",
   "type": "commonjs",
   "scripts": {
     "test": "npx playwright test",
-    "build": "npx esbuild src/*.ts --platform=node --format=cjs --bundle --external:playwright --external:esbuild --external:react --external:react-dom --outdir=dist/ && tsc --emitDeclarationOnly"
+    "lint": "npx prettier -c *.json *.ts src/",
+    "build": "npx esbuild src/*.ts --platform=node --format=cjs --outdir=dist/ --drop-labels=PWRIGHT_REACT_TEST_DEV && tsc --emitDeclarationOnly && npx html-minifier-terser --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --remove-style-link-type-attributes --minify-css true --minify-js true --input-dir src/ --output-dir dist/ --file-ext html",
+    "testbuild": "npx tsx ./testbuild.ts",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run test && npx tsx ./testbuild.ts"
   },
   "repository": {
     "type": "git",
@@ -34,6 +38,9 @@
     "@types/node": "^25.2.1",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
+    "html-minifier-terser": "^7.2.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "files": [
@@ -45,7 +52,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./mount": "./dist/mount.js",
-    "./reporter": "./dist/reporter.js",
-    "./test": "./dist/test.js"
+    "./mount.html": "./dist/mount.html",
+    "./test": "./dist/test.js",
+    "./startup": "./dist/startup.js",
+    "./teardown": "./dist/teardown.js"
   }
 }

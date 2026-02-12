@@ -1,7 +1,8 @@
 // Story definition for the App component used in Playwright tests
 import { ReactNode } from "react";
 import App from "./App";
+import "./App.css";
 
-globalThis.story = (props: any): ReactNode => {
+export default (props: any): ReactNode => {
   return <App {...props} />;
 };

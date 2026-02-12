@@ -4,9 +4,10 @@ import {
   PlaywrightTestConfig,
   ReporterDescription,
 } from "@playwright/test";
-import { readFileSync } from "fs";
+import { existsSync } from "fs";
 // This file extends Playwright's test object to provide utilities for mounting and updating React components during tests.
 import path from "path";
+import build from "./build";
 
 // Extend Playwright's test with custom utilities for React component testing
 /**
@@ -18,11 +19,11 @@ export const test = base.extend<{
   /**
    * Mounts a React component with the given props.
    */
-  mountStory: (props: any) => void;
+  mountStory<T = any>(props: T): Promise<void>;
   /**
    * Updates an already mounted component with new props.
    */
-  updateStory: (props: any) => void;
+  updateStory<T = any>(props: T): Promise<void>;
 }>({
   /**
    * Mounts a React component into the Playwright page.
@@ -31,29 +32,56 @@ export const test = base.extend<{
    * @param testInfo - Information about the current test, used to locate the story file.
    */
   mountStory: async ({ page }, use, testInfo) => {
-    await use((props: any) => {
+    await use(async (props: any) => {
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
         throw "Setup has not been called, use defineConfig from 'playwright-react-test/test' in your playwright config file";
       }
-      const tmp_dir = process.env.PWRIGHT_REACT_TEST_TMPDIR;
-      const story_path = path
-        .resolve(
-          path.join(tmp_dir, path.relative(path.resolve("."), testInfo.file)),
+      const test_path = path.relative(path.resolve("."), testInfo.file);
+      const story_path = test_path.replace(
+        /(\.(test|spec))?\.ts$/,
+        ".story.tsx",
+      );
+      if (!existsSync(story_path)) {
+        throw `Missing ${story_path} file !`;
+      }
+      await build(process.env.PWRIGHT_REACT_TEST_TMPDIR, [story_path], {
+        loader: {
+          ".css": "css",
+        },
+        assetNames: "[dir]/[name]",
+      });
+      const story_build_path = test_path.replace(
+        /(\.(test|spec))?\.ts$/,
+        ".story.js",
+      );
+      const story_css_build_path = story_build_path.replace(/\.js$/, ".css");
+      await page.goto(
+        `http://localhost:${process.env.PWRIGHT_REACT_TEST_PORT}/mount.html`,
+      );
+      let mount_callname = "mount.default";
+      PWRIGHT_REACT_TEST_DEV: (() => {
+        mount_callname = "mount";
+      })();
+      await page.addScriptTag({
+        type: "module",
+        content: `
+		import mount from '/playwright-react-test/mount.js';
+		import story from '/${story_build_path}';
+		${mount_callname}.render(document.getElementById('root'), ${JSON.stringify(props)}, story);
+		`,
+      });
+      if (
+        existsSync(
+          path.join(
+            process.env.PWRIGHT_REACT_TEST_TMPDIR,
+            story_css_build_path,
+          ),
         )
-        .replace(/(\.(test|spec))?\.ts$/, ".story.js");
-      page.setContent(`
-	<html>
-		<head>
-			<script>${readFileSync(path.resolve(path.join(tmp_dir, "react.js")))}</script>
-			<script>${readFileSync(path.resolve(path.join(tmp_dir, "react-dom/client.js")))}</script>
-		</head>
-		<body>
-			<div id="root"></div>
-			<script>${readFileSync(path.join(tmp_dir, "playwright-react-test/mount.js"))}</script>
-			<script>${readFileSync(story_path)}</script>
-			<script>ReactTestMount(document.getElementById('root'), ${JSON.stringify(props)}, story);</script>
-		</body>
-	</html>`);
+      ) {
+        await page.addStyleTag({
+          url: `/${story_css_build_path}`,
+        });
+      }
     });
   },
   /**
@@ -63,9 +91,17 @@ export const test = base.extend<{
    */
   updateStory: async ({ page }, use) => {
     await use(async (props: any) => {
-      await page.evaluate((props) => {
-        (globalThis as any).ReactTestPropsHandler.update(props);
-      }, props);
+      let mount_callname = "mount.default";
+      PWRIGHT_REACT_TEST_DEV: (() => {
+        mount_callname = "mount";
+      })();
+      await page.addScriptTag({
+        type: "module",
+        content: `
+		    	import mount from '/playwright-react-test/mount.js';
+			${mount_callname}.update(${JSON.stringify(props)});
+	    		`,
+      });
     });
   },
 });
@@ -94,7 +130,8 @@ export const defineConfig = (
   }
   return base_defineConfig({
     ...config,
-    reporter: reporter,
+    globalSetup: "playwright-react-test/startup",
+    globalTeardown: "playwright-react-test/teardown",
   });
 };
 
