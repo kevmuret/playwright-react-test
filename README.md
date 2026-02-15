@@ -1,19 +1,22 @@
 # Playwright React Test Utility
 
-A lightweight library that brings **Playwright** and **React** together, making it simple to mount components in a test context.
+A lightweight, zero‑configuration library that lets you **mount and update React components inside Playwright tests**.
+
+## Features
+- 🏃 Zero‑configuration setup – just install, use the `defineConfig` from 'playwright-react-test/test' module and start writing tests.
+- 🎉 **Mount & update** – expose `mountStory` and `updateStory` fixtures in your test files.
+- ⚡️ Automatic bundling of stories (and their CSS) via *esbuild* at runtime.
+- 🚀 HTTP server that serves bundled assets from a temporary directory, exposing the port through `process.env.PWRIGHT_REACT_TEST_PORT`.
+- 🔧 Global setup/teardown hooks (`startup.ts`, `teardown.ts`) replace the old reporter‑based approach.
+- 📦 New exports: `mount.html`, `startup`, and `teardown` in addition to the previous ones.
+- 🧪 TypeScript‑first – all components are typed, tests use Playwright’s built‑in test runner.
 
 Note: Currently, it supports only tests written in TypeScript.
 
-## Features
-- **Mount React components** directly inside Playwright tests using the `mountStory` function provided as a fixture.
-- **Update React components** directly inside Playwright tests using the `updateStory` function provided as a fixture.
-- **An automatic bundle** using `ESBuild` inside a custom reporter which collect stories individually while keep the link with the react librairies (it does not prevent youfrom using other custom reporters).
-- Zero‑configuration setup – just install, use the `defineConfig` from 'playwright-react-test/test' module and start writing tests.
-- Built with **TypeScript**, providing type safety out of the box.
-
 ## Prerequisites
-- Node.js 20.x+ (LTS)
+- Node 18.x+
 - npm
+- Playwright (peer dependency of this package)
 
 ## Installation
 ```bash
@@ -61,10 +64,11 @@ export default defineConfig({
 });
 ```
 
-or if you prefer you can use the original defineConfig and pass the `ReactTestReporter` available at `playwright-react-test/reporter`:
+or if you prefer you can use the original defineConfig and pass the `globalSetup` and `globalTeardown` available at `playwright-react-test/setup` and `playwright-react-test/teardown` respectively:
 ```typescript
 export default defineConfig({
-  reporter: [['playwright-react-test/reporter', {}]],
+  globalSetup: 'playwright-react-test/setup',
+  globalTeardown: 'playwright-react-test/teardown',
 });
 ```
 
@@ -75,8 +79,9 @@ First create story file (e.g., `tests/example.story.tsx`) and write:
 import { React } from 'react';
 import MyComponent, { MyComponentProps } from '../src/MyComponent';
 
-// Important: to expose the story inside the browser assign it into globalThis with the exact name "story".
-(globalThis as any).story = (props: MyComponentProps) => {
+// The default export is the React component that will be mounted
+// you can encapsulate the component you want to test here passing the same props.
+export default (props: MyComponentProps) => {
   return <MyComponent {...props}>Hello {props.text} !</MyComponent>;
 }
 ```
@@ -86,17 +91,18 @@ Note: The story file is only available within the browser; it is not accessible 
 Create a test file with the same name as the story file (e.g., `tests/example.test.ts`) and write:
 ```typescript
 import { test, expect } from 'playwright-react-test/test';
-import MyComponent from '../src/MyComponent';
+import { MyComponentProps } from '../src/MyComponent';
 
 test('MyComponent renders and update correctly', async ({ page, mountStory, updateStory }) => {
-  mountStory({
+  mountStory<MyComponentProps>({
     text: 'world'
   });
   await expect(page.getByText('Hello world !')).toBeVisible();
   // Write any other expectations for MyComponent...
 
   // Update story props cause re-render of the story component
-  updateStory({
+  // The props will replace all props, pass a variable if you don't want to change all props.
+  updateStory<MyComponentProps>({
     text: 'you',
   });
   await expect(page.getByText('Hello you !')).toBeVisible();
