@@ -28,7 +28,7 @@ const Root = <T = any>(init_props: T): ReactNode => {
     (subscribe) => {
       listener = subscribe;
       return () => {
-	      listener = undefined;
+        listener = undefined;
       };
     },
     () => props,

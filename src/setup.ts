@@ -1,7 +1,4 @@
-import {
-  mkdtempSync,
-  promises as fsPromises,
-} from "fs";
+import { mkdtempSync, promises as fsPromises } from "fs";
 import { tmpdir } from "os";
 import path from "path";
 import startServer, { ServerInfos } from "./server";
@@ -20,7 +17,7 @@ let server_infos: ServerInfos;
  * @returns {Promise<boolean>} `true` if a server was running and has been closed,
  *   otherwise `false`.
  */
-export const serverClose = async () : Promise<boolean> => {
+export const serverClose = async (): Promise<boolean> => {
   if (!server_infos) return false;
   return await server_infos.close();
 };

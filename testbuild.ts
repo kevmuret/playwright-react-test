@@ -28,7 +28,7 @@ const this_package_path = path.resolve(".");
 
 // Create a temporary project directory and subdirectories for src and tests
 const tmp_project_path = mkdtempSync(
-  path.join(tmpdir(), "pwright-react-testProject")
+  path.join(tmpdir(), "pwright-react-testProject"),
 );
 const tmp_src_dir_path = path.join(tmp_project_path, "src");
 const tmp_tests_dir_path = path.join(tmp_project_path, "tests");
@@ -37,18 +37,18 @@ const tmp_tests_dir_path = path.join(tmp_project_path, "tests");
 mkdirSync(tmp_src_dir_path);
 copyFileSync(
   path.join("tests", "App.css"),
-  path.join(tmp_src_dir_path, "App.css")
+  path.join(tmp_src_dir_path, "App.css"),
 );
 copyFileSync(
   path.join("tests", "App.tsx"),
-  path.join(tmp_src_dir_path, "App.tsx")
+  path.join(tmp_src_dir_path, "App.tsx"),
 );
 
 // Copy test files into the temp project's tests directory
 mkdirSync(tmp_tests_dir_path);
 copyFileSync(
   path.join("tests", "App.story.tsx"),
-  path.join(tmp_tests_dir_path, "App.story.tsx")
+  path.join(tmp_tests_dir_path, "App.story.tsx"),
 );
 const storyTsxPath = path.join(tmp_tests_dir_path, "App.story.tsx");
 const storyTsxContent = readFileSync(storyTsxPath, "utf8");
@@ -57,14 +57,14 @@ const updatedStoryTsxContent = storyTsxContent.replace(/\.\//g, "../src/");
 writeFileSync(storyTsxPath, updatedStoryTsxContent);
 copyFileSync(
   path.join("tests", "App.test.ts"),
-  path.join(tmp_tests_dir_path, "App.test.ts")
+  path.join(tmp_tests_dir_path, "App.test.ts"),
 );
 const testTsPath = path.join(tmp_tests_dir_path, "App.test.ts");
 const testTsContent = readFileSync(testTsPath, "utf8");
 // Update import paths in the test file to reference the package
 const updatedTestTsContent = testTsContent.replace(
   /\..\/src\//g,
-  "playwright-react-test/"
+  "playwright-react-test/",
 );
 writeFileSync(testTsPath, updatedTestTsContent);
 
@@ -87,7 +87,7 @@ export default defineConfig({
     headless: true,
   },
 });
-`
+`,
 );
 
 // Run the Playwright tests inside the temporary project
