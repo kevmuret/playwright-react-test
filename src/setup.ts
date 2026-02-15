@@ -1,23 +1,37 @@
 import {
   mkdtempSync,
-  readFileSync,
   promises as fsPromises,
-  copyFileSync,
-  mkdirSync,
 } from "fs";
 import { tmpdir } from "os";
 import path from "path";
 import startServer, { ServerInfos } from "./server";
 import { FullConfig } from "playwright/test";
-import build, { waitForFile } from "./build";
+import build from "./build";
 import { BuildOptions } from "esbuild";
 
+/**
+ * Holds information about the running test server.
+ */
 let server_infos: ServerInfos;
-export const serverClose = async () => {
+
+/**
+ * Gracefully shuts down the test server started by `setup`.
+ *
+ * @returns {Promise<boolean>} `true` if a server was running and has been closed,
+ *   otherwise `false`.
+ */
+export const serverClose = async () : Promise<boolean> => {
   if (!server_infos) return false;
-  await server_infos.close();
+  return await server_infos.close();
 };
 
+/**
+ * Initializes the test environment by building assets, starting a development server,
+ * and configuring temporary directories for Playwright tests.
+ *
+ * @param config - The Playwright configuration object.
+ * @returns The same `FullConfig` instance after any modifications.
+ */
 export default async (config: FullConfig) => {
   const tmp_dir_path = (process.env.PWRIGHT_REACT_TEST_TMPDIR = mkdtempSync(
     path.join(tmpdir(), "pwright-react-"),

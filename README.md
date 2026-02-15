@@ -7,8 +7,7 @@ A lightweight, zero‑configuration library that lets you **mount and update Rea
 - 🎉 **Mount & update** – expose `mountStory` and `updateStory` fixtures in your test files.
 - ⚡️ Automatic bundling of stories (and their CSS) via *esbuild* at runtime.
 - 🚀 HTTP server that serves bundled assets from a temporary directory, exposing the port through `process.env.PWRIGHT_REACT_TEST_PORT`.
-- 🔧 Global setup/teardown hooks (`startup.ts`, `teardown.ts`) replace the old reporter‑based approach.
-- 📦 New exports: `mount.html`, `startup`, and `teardown` in addition to the previous ones.
+- 🔧 Global setup/teardown hooks (`setup.ts`, `teardown.ts`).
 - 🧪 TypeScript‑first – all components are typed, tests use Playwright’s built‑in test runner.
 
 Note: Currently, it supports only tests written in TypeScript.

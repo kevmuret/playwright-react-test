@@ -1,3 +1,8 @@
+/*
+ * App.tsx – simple React component used in tests
+ * Exports a functional component that displays "Hello: {text}".
+ * Props are typed via AppProps for clarity.
+ */
 // App component renders a greeting message
 import React, { ReactNode } from "react";
 

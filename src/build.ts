@@ -6,6 +6,14 @@ type InternalBuildOptions = Pick<
   "entryPoints" | "bundle" | "outdir" | "outbase" | "tsconfigRaw"
 >;
 
+/**
+ * Bundle files to make them importable from the browser instances
+ *
+ * @param tmpDirPath - Directory where bundled files will be written.
+ * @param entryPoints - Array of input file paths for the build.
+ * @param options - Optional esbuild configuration overrides.
+ * @returns The result object returned by esbuild's `build` function.
+ */
 export default async (
   tmp_dir_path: string,
   entry_points: Array<string>,
@@ -30,7 +38,16 @@ export default async (
   return result;
 };
 
-// Helper that polls for a file until it exists or times out
+/**
+ * Waits for a file to exist within a given timeout.
+ * Polls the filesystem every 50ms until the file is accessible or the
+ * timeout expires. Useful in tests where build artifacts are created
+ * asynchronously.
+ *
+ * @param filePath - Path of the file to wait for.
+ * @param timeout - Maximum time in milliseconds to wait (default to 5  seconds).
+ * @throws Will throw an error if the file does not appear before the timeout.
+ */
 export const waitForFile = async (filePath: string, timeout = 5000) => {
   const start = Date.now();
   while (true) {

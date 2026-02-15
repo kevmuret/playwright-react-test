@@ -4,15 +4,30 @@ import fs from "fs";
 
 let started = false;
 
+/**
+ * Information returned by the {@link startServer} function.
+ *
+ * @property {number} port - The TCP port on which the HTTP server is listening.
+ * @property {() => Promise<boolean>} close - A helper to shut down the server. Resolves with `true` if the server closed without error, otherwise `false`.
+ */
 export type ServerInfos = {
   port: number;
   close: () => Promise<boolean>;
 };
 
-// Helper to start an HTTP server serving static files from tmpDir
+/**
+ * Starts an HTTP server that serves static files from the specified temporary directory.
+ * The server automatically assigns an available port and returns its address along with a helper to close it.
+ *
+ * @param {string} tmpDir - Path to the directory containing the files to serve.
+ * @returns {Promise<ServerInfos>} A promise that resolves with the listening port and a `close` function.
+ */
 export default async function startServer(
   tmpDir: string,
 ): Promise<ServerInfos> {
+  /**
+   * Mapping of file extensions to MIME types for the static server.
+   */
   const mimeTypes: Record<string, string> = {
     ".js": "application/javascript",
     ".tsx": "text/plain",
@@ -23,15 +38,22 @@ export default async function startServer(
     ".htm": "text/html",
   };
 
+  /**
+   * Create an HTTP server that serves static files from `tmpDir`.
+   */
   const server = createServer((req, res) => {
+    // Resolve the request path relative to the temporary directory
     const reqPath = new URL(req.url ?? "/", `http://localhost`).pathname;
     const filePath = path.join(tmpDir, reqPath);
+
+    // Check if the requested file exists and is readable
     fs.access(filePath, fs.constants.R_OK, (err) => {
       if (err) {
         res.statusCode = 404;
         res.end("Not found");
         return;
       }
+
       const ext = path.extname(filePath).toLowerCase();
       const mime = mimeTypes[ext] || "application/octet-stream";
       res.setHeader("Content-Type", mime);

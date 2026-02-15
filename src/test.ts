@@ -130,7 +130,7 @@ export const defineConfig = (
   }
   return base_defineConfig({
     ...config,
-    globalSetup: "playwright-react-test/startup",
+    globalSetup: "playwright-react-test/setup",
     globalTeardown: "playwright-react-test/teardown",
   });
 };

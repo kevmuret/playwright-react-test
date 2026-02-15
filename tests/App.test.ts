@@ -1,3 +1,7 @@
+/*
+ * App.test.ts – example integration test
+ * Uses Playwright’s test runner to mount the story and verify UI updates.
+ */
 // Test file for the App component using Playwright's testing library
 import { test, expect } from "../src/test";
 import { AppProps } from "./App";

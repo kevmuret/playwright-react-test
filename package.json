@@ -54,7 +54,7 @@
     "./mount": "./dist/mount.js",
     "./mount.html": "./dist/mount.html",
     "./test": "./dist/test.js",
-    "./startup": "./dist/startup.js",
+    "./setup": "./dist/setup.js",
     "./teardown": "./dist/teardown.js"
   }
 }
