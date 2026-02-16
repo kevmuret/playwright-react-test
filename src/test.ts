@@ -4,6 +4,7 @@ import {
   PlaywrightTestConfig,
   ReporterDescription,
 } from "@playwright/test";
+import { resolveStoryPath } from "./utils/storyResolver";
 import { existsSync } from "fs";
 // This file extends Playwright's test object to provide utilities for mounting and updating React components during tests.
 import path from "path";
@@ -50,23 +51,13 @@ export const test = base.extend<{
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
         throw "Setup has not been called, use defineConfig from 'playwright-react-test/test' in your playwright config file";
       }
-      let story_path: string;
-      // Resolve story path and ensure it resides within the current working directory
-      if (options?.storyFile) {
-        const testDir = path.dirname(testInfo.file);
-        story_path = path.resolve(testDir, options.storyFile);
-      } else {
-        story_path = testInfo.file.replace(
-          /(\.(test|spec))?\.ts$/,
-          ".story.tsx",
-        );
-      }
-      const resolvedPath = path.resolve(story_path);
+      const storyPath = resolveStoryPath(testInfo, options);
+      const resolvedPath = path.resolve(storyPath);
       if (!resolvedPath.startsWith(process.cwd())) {
-        throw `Story file ${story_path} is outside of the current working directory: ${resolvedPath}`;
+        throw `Story file ${storyPath} is outside of the current working directory: ${resolvedPath}`;
       }
       if (!existsSync(resolvedPath)) {
-        throw `Missing ${story_path} file !`;
+        throw `Missing ${storyPath} file !`;
       }
       // Bundle story
       await build(process.env.PWRIGHT_REACT_TEST_TMPDIR, [resolvedPath], {
@@ -75,8 +66,9 @@ export const test = base.extend<{
         },
         assetNames: "[dir]/[name]",
       });
+      // Relative path for the webserver
       const story_build_path = path
-        .relative(path.resolve("."), story_path)
+        .relative(path.resolve("."), storyPath)
         .replace(/\.tsx$/, ".js");
       const story_css_build_path = story_build_path.replace(/\.js$/, ".css");
       // Display mounting page
