@@ -17,9 +17,19 @@ import build from "./build";
  */
 export const test = base.extend<{
   /**
-   * Mounts a React component with the given props.
-   */
-  mountStory<T = any>(props: T): Promise<void>;
+   /**
+    * Mounts a React component with the given props and optional configuration.
+    * @param props Initial props for the component.
+    * @param options Optional configuration for mounting. Currently supports:
+    *  - `storyFile` (string): Explicit path to the story file to use instead of inferring from test filename.
+    *    Useful when a test needs to mount a different story than the one that matches its filename.
+    */
+
+  mountStory<T = any>(
+    props: T,
+    options?: { storyFile?: string },
+  ): Promise<void>;
+
   /**
    * Updates an already mounted component with new props.
    */
@@ -32,32 +42,48 @@ export const test = base.extend<{
    * @param testInfo - Information about the current test, used to locate the story file.
    */
   mountStory: async ({ page }, use, testInfo) => {
-    await use(async (props: any) => {
+    await use(async (props: any, options?: { storyFile?: string }) => {
+      /**
+       * Optional configuration for mounting.
+       * @param options.storyFile Path to a specific story file instead of inferring from test filename.
+       */
       if (!process.env.PWRIGHT_REACT_TEST_TMPDIR) {
         throw "Setup has not been called, use defineConfig from 'playwright-react-test/test' in your playwright config file";
       }
-      const test_path = path.relative(path.resolve("."), testInfo.file);
-      const story_path = test_path.replace(
-        /(\.(test|spec))?\.ts$/,
-        ".story.tsx",
-      );
-      if (!existsSync(story_path)) {
+      let story_path: string;
+      // Resolve story path and ensure it resides within the current working directory
+      if (options?.storyFile) {
+        const testDir = path.dirname(testInfo.file);
+        story_path = path.resolve(testDir, options.storyFile);
+      } else {
+        story_path = testInfo.file.replace(
+          /(\.(test|spec))?\.ts$/,
+          ".story.tsx",
+        );
+      }
+      const resolvedPath = path.resolve(story_path);
+      if (!resolvedPath.startsWith(process.cwd())) {
+        throw `Story file ${story_path} is outside of the current working directory: ${resolvedPath}`;
+      }
+      if (!existsSync(resolvedPath)) {
         throw `Missing ${story_path} file !`;
       }
-      await build(process.env.PWRIGHT_REACT_TEST_TMPDIR, [story_path], {
+      // Bundle story
+      await build(process.env.PWRIGHT_REACT_TEST_TMPDIR, [resolvedPath], {
         loader: {
           ".css": "css",
         },
         assetNames: "[dir]/[name]",
       });
-      const story_build_path = test_path.replace(
-        /(\.(test|spec))?\.ts$/,
-        ".story.js",
-      );
+      const story_build_path = path
+        .relative(path.resolve("."), story_path)
+        .replace(/\.tsx$/, ".js");
       const story_css_build_path = story_build_path.replace(/\.js$/, ".css");
+      // Display mounting page
       await page.goto(
         `http://localhost:${process.env.PWRIGHT_REACT_TEST_PORT}/mount.html`,
       );
+      // Mount the story
       let mount_callname = "mount.default";
       PWRIGHT_REACT_TEST_DEV: (() => {
         mount_callname = "mount";

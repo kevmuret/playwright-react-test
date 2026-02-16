@@ -1,6 +1,6 @@
 {
   "name": "playwright-react-test",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Test your React components (currently only works with TypeScript and ESBuild compiler).",
   "main": "dist/test.js",
   "type": "commonjs",

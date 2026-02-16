@@ -93,6 +93,9 @@ import { test, expect } from 'playwright-react-test/test';
 import { MyComponentProps } from '../src/MyComponent';
 
 test('MyComponent renders and update correctly', async ({ page, mountStory, updateStory }) => {
+  // Specify optional configuration such as a custom story file path
+  // mountStory<MyComponentProps>({ text: 'world' }, { storyFile: './custom.story.tsx' });
+  // The `storyFile` option allows you to mount a different story than the one inferred from the test filename.
   mountStory<MyComponentProps>({
     text: 'world'
   });

@@ -19,10 +19,25 @@ import {
   mkdtempSync,
   writeFileSync,
   rmSync,
+  readdirSync,
 } from "fs";
+
 import { tmpdir } from "os";
 import path from "path";
 import { chdir } from "process";
+
+function copyTestFile(from: string, to: string): void {
+  const content = readFileSync(from, "utf8");
+  let updated = content;
+  if (path.basename(from).endsWith(".story.tsx")) {
+    // replace ./foo imports with ../src/foo
+    updated = content.replace(/\.\//g, "../src/");
+  } else if (path.basename(from).endsWith(".test.ts")) {
+    // replace ../src/ imports with package path
+    updated = content.replace(/\.\.\/src\//g, "playwright-react-test/");
+  }
+  writeFileSync(to, updated);
+}
 
 const this_package_path = path.resolve(".");
 
@@ -46,27 +61,15 @@ copyFileSync(
 
 // Copy test files into the temp project's tests directory
 mkdirSync(tmp_tests_dir_path);
-copyFileSync(
-  path.join("tests", "App.story.tsx"),
-  path.join(tmp_tests_dir_path, "App.story.tsx"),
+// Copy all ".story.tsx" and ".test.ts" files into tmp_tests_dir_path using copyTestFile
+const testFiles = readdirSync("tests").filter(
+  (f) => f.endsWith(".story.tsx") || f.endsWith(".test.ts"),
 );
-const storyTsxPath = path.join(tmp_tests_dir_path, "App.story.tsx");
-const storyTsxContent = readFileSync(storyTsxPath, "utf8");
-// Update relative imports in the story file
-const updatedStoryTsxContent = storyTsxContent.replace(/\.\//g, "../src/");
-writeFileSync(storyTsxPath, updatedStoryTsxContent);
-copyFileSync(
-  path.join("tests", "App.test.ts"),
-  path.join(tmp_tests_dir_path, "App.test.ts"),
-);
-const testTsPath = path.join(tmp_tests_dir_path, "App.test.ts");
-const testTsContent = readFileSync(testTsPath, "utf8");
-// Update import paths in the test file to reference the package
-const updatedTestTsContent = testTsContent.replace(
-  /\..\/src\//g,
-  "playwright-react-test/",
-);
-writeFileSync(testTsPath, updatedTestTsContent);
+for (const file of testFiles) {
+  const fromPath = path.join("tests", file);
+  const toPath = path.join(tmp_tests_dir_path, file);
+  copyTestFile(fromPath, toPath);
+}
 
 // Switch to the temporary project directory and install dependencies
 chdir(tmp_project_path);

@@ -37,7 +37,7 @@ const Root = <T = any>(init_props: T): ReactNode => {
 };
 
 /**
- * Mounts a Storybook story onto a DOM element.
+ * Mounts a story onto a DOM element.
  *
  * @param container - The HTMLElement to render the story into.
  * @param props - Initial props passed to the story component.
