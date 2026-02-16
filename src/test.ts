@@ -133,19 +133,6 @@ export const test = base.extend<{
 export const defineConfig = (
   config: PlaywrightTestConfig,
 ): PlaywrightTestConfig => {
-  const reporter: ReporterDescription[] = [
-    ["playwright-react-test/reporter", {}],
-  ];
-  switch (typeof config.reporter) {
-    case "string":
-      reporter.push([config.reporter]);
-      break;
-    case "undefined":
-      break;
-    default:
-      reporter.concat(config.reporter);
-      break;
-  }
   return base_defineConfig({
     ...config,
     globalSetup: "playwright-react-test/setup",
