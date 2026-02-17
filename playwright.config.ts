@@ -10,6 +10,6 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     headless: true,
   },
-  globalSetup: "./src/setup.ts",
-  globalTeardown: "./src/teardown.ts",
+  globalSetup: ["./src/setup.ts", "./globalSetup.ts"],
+  globalTeardown: ["./src/teardown.ts", "./globalTeardown.ts"],
 });

@@ -70,6 +70,14 @@ for (const file of testFiles) {
   const toPath = path.join(tmp_tests_dir_path, file);
   copyTestFile(fromPath, toPath);
 }
+copyFileSync(
+  path.join(".", "globalSetup.ts"),
+  path.join(tmp_project_path, "globalSetup.ts"),
+);
+copyFileSync(
+  path.join(".", "globalTeardown.ts"),
+  path.join(tmp_project_path, "globalTeardown.ts"),
+);
 
 // Switch to the temporary project directory and install dependencies
 chdir(tmp_project_path);
@@ -89,6 +97,8 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     headless: true,
   },
+  globalSetup: "./globalSetup.ts",
+  globalTeardown: "./globalTeardown.ts",
 });
 `,
 );

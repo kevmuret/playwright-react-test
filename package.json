@@ -56,6 +56,7 @@
     "./test": "./dist/test.js",
     "./setup": "./dist/setup.js",
     "./teardown": "./dist/teardown.js",
-    "./utils/storyResolver": "./dist/storyResolver.js"
+    "./utils/storyResolver": "./dist/storyResolver.js",
+    "./utils/arrayHelpers": "./dist/arrayHelpers.js"
   }
 }

@@ -9,6 +9,7 @@ import { existsSync } from "fs";
 // This file extends Playwright's test object to provide utilities for mounting and updating React components during tests.
 import path from "path";
 import build from "./build";
+import { normalizeArray } from "./utils/arrayHelper";
 
 // Extend Playwright's test with custom utilities for React component testing
 /**
@@ -133,10 +134,14 @@ export const test = base.extend<{
 export const defineConfig = (
   config: PlaywrightTestConfig,
 ): PlaywrightTestConfig => {
+  const globalSetup = normalizeArray(config.globalSetup ?? []);
+  const globalTeardown = normalizeArray(config.globalTeardown ?? []);
+  globalSetup.push("playwright-react-test/setup");
+  globalTeardown.push("playwright-react-test/teardown");
   return base_defineConfig({
     ...config,
-    globalSetup: "playwright-react-test/setup",
-    globalTeardown: "playwright-react-test/teardown",
+    globalSetup: globalSetup,
+    globalTeardown: globalTeardown,
   });
 };
 
