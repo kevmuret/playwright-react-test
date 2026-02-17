@@ -63,6 +63,8 @@ export default defineConfig({
 });
 ```
 
+NOTE: All playwright options are still available.
+
 or if you prefer you can use the original defineConfig and pass the `globalSetup` and `globalTeardown` available at `playwright-react-test/setup` and `playwright-react-test/teardown` respectively:
 ```typescript
 export default defineConfig({
@@ -70,6 +72,8 @@ export default defineConfig({
   globalTeardown: 'playwright-react-test/teardown',
 });
 ```
+
+NOTE: If you need to add your custom setup and/or teardown pass an array.
 
 ### Writing tests
 
