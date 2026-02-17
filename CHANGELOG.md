@@ -33,3 +33,18 @@ All notable changes to this project will be documented in this file.
 - Adjusted build path resolution to use resolved absolute paths.
 - Minor code style and comment updates for clarity.
 
+## [0.2.4] - 2026-02-17
+### Added
+- New globalSetup.ts and globalTeardown.ts scripts to manage test state.
+- Utility functions resolveStoryPath (src/utils/storyResolver.ts) and normalizeArray (src/utils/arrayHelper.ts).
+- Updated build script to bundle utils during esbuild.
+- Exported storyResolver and arrayHelpers in package.json.
+
+### Changed
+- README now notes that playwright options are still available and supports custom setup/teardown arrays.
+- src/test.ts refactored to use resolveStoryPath and normalizeArray; removed inline logic.
+- package.json exports adjusted to include new utils.
+
+### Removed
+- None.
+
