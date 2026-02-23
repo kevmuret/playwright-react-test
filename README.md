@@ -4,7 +4,7 @@ A lightweight, zero‑configuration library that lets you **mount and update Rea
 
 ## Features
 - 🏃 Zero‑configuration setup – just install, use the `defineConfig` from 'playwright-react-test/test' module and start writing tests.
-- 🎉 **Mount & update** – expose `mountStory` and `updateStory` fixtures in your test files.
+- 🎉 **Mount, update & expose functions** – `mountStory`, `updateStory` fixtures and automatically expose functions passed as props to the page.
 - ⚡️ Automatic bundling of stories (and their CSS) via *esbuild* at runtime.
 - 🚀 HTTP server that serves bundled assets from a temporary directory, exposing the port through `process.env.PWRIGHT_REACT_TEST_PORT`.
 - 🔧 Global setup/teardown hooks (`setup.ts`, `teardown.ts`).
@@ -52,7 +52,7 @@ Create a file with the name `playwright.config.ts` and write:
 import { defineConfig } from 'playwright-react-test/test';
 
 export default defineConfig({
-  // Write you usual playwright configuration
+  // Write your usual playwright configuration
   testMatch: ["tests/**/*.ts"],
   timeout: 30_000,
   retries: 0,
@@ -113,6 +113,23 @@ test('MyComponent renders and update correctly', async ({ page, mountStory, upda
   });
   await expect(page.getByText('Hello you !')).toBeVisible();
 });
+```
+
+If you want test callback simply pass your function as a prop all passed function (including nested ones) are automatically exposed to the page via [`exposeFunction`](https://playwright.dev/docs/api/class-page#page-expose-function):
+```typescript
+let call_arg : any;
+await mountStory({
+    onClick: (arg: any) => call_arg = arg,
+});
+expect(call_arg).toBe("Expected value");
+// Works with updateStory too
+```
+
+If you want to interact with playwright APIs set the option `exposeBinding` to true (default to false) to expose via [`exposeBinding`](https://playwright.dev/docs/api/class-page#page-expose-binding).
+```typescript
+await mountStory({
+    onClick: ({ page }, argHandle: JSHandle) => page.url(),
+}, { exposeBinding: true });
 ```
 
 ### Running tests

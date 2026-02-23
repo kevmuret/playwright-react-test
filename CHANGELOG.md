@@ -45,6 +45,8 @@ All notable changes to this project will be documented in this file.
 - src/test.ts refactored to use resolveStoryPath and normalizeArray; removed inline logic.
 - package.json exports adjusted to include new utils.
 
-### Removed
-- None.
-
+## [0.3] - 2026-02-23
+### Added
+- Automatic exposing of functions passed as props to the page via `exposeFunction` or `exposeBinding`.
+- Updated `mountStory` and `updateStory` signatures to accept options for story file override, binding exposure.
+- New `MountStoryOptions` and `UpdateStoryOptions` types.
