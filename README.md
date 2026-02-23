@@ -8,7 +8,8 @@ A lightweight, zero‑configuration library that lets you **mount and update Rea
 - ⚡️ Automatic bundling of stories (and their CSS) via *esbuild* at runtime.
 - 🚀 HTTP server that serves bundled assets from a temporary directory, exposing the port through `process.env.PWRIGHT_REACT_TEST_PORT`.
 - 🔧 Global setup/teardown hooks (`setup.ts`, `teardown.ts`).
-- 🧪 TypeScript‑first – all components are typed, tests use Playwright’s built‑in test runner.
+- 🧪 TypeScript‑first – all components are typed, tests use Playwright's built‑in test runner.
+- 🤖 Automatic function exposing in props – functions passed to components are automatically exposed to the page via `exposeFunction` or `exposeBinding`.
 
 Note: Currently, it supports only tests written in TypeScript.
 
@@ -100,9 +101,13 @@ test('MyComponent renders and update correctly', async ({ page, mountStory, upda
   // Specify optional configuration such as a custom story file path
   // mountStory<MyComponentProps>({ text: 'world' }, { storyFile: './custom.story.tsx' });
   // The `storyFile` option allows you to mount a different story than the one inferred from the test filename.
-  mountStory<MyComponentProps>({
-    text: 'world'
-  });
+  
+  // Functions in props are automatically exposed for callbacks and event handlers
+  const my_props = {
+    text: 'world',
+    onClick: (name: string) => console.log('Clicked:', name)
+  };
+  mountStory<MyComponentProps>(my_props);
   await expect(page.getByText('Hello world !')).toBeVisible();
   // Write any other expectations for MyComponent...
 

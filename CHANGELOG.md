@@ -48,3 +48,16 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - None.
 
+## [0.3] - 2026-02-23
+### Added
+- Automatic function exposing in props (functions are automatically exposed to the page via `exposeFunction` or `exposeBinding`).
+- New `exposeBinding` option in `mountStory` and `updateStory` to use Playwright's binding API instead of function API.
+- ExposedFunctionsAsObject utility in mount.ts to merge exposed functions into props.
+- Updated tests with examples for function exposure (tests/App.test.ts).
+
+### Changed
+- Refactored mountStory/updateStory signatures to accept options object with exposeBinding flag.
+- Props are now spread with exposed functions using `exposedFunctionsAsObject` prefix pattern.
+
+### Improved
+- Documentation updated in README.md with new options and usage examples.
