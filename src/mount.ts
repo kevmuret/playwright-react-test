@@ -64,7 +64,32 @@ const update = <T = any>(p: T): void => {
   listener!();
 };
 
+const exposedFunctionsAsObject = (prefix: string): any => {
+  const result = {};
+  let pointer: any = result;
+  for (const candidate_key in globalThis) {
+    if (candidate_key.startsWith(prefix)) {
+      const keys = candidate_key.substring(prefix.length).split(".");
+      const last_key = keys.pop();
+      if (last_key === undefined) {
+        continue;
+      }
+      let partial_key = "";
+      for (const key of keys) {
+        partial_key += `.${key}`;
+        if (!(key in pointer)) {
+          pointer[key] = {};
+        }
+        pointer = pointer[key];
+      }
+      pointer[last_key] = (globalThis as any)[candidate_key];
+    }
+  }
+  return result;
+};
+
 export default {
   render,
   update,
+  exposedFunctionsAsObject,
 };
